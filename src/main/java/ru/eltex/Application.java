@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Класс для запуска программы
  *
- * @author Evgeni Osipov
+ * @author Evgeny Osipov
  */
 @SpringBootApplication
 public class Application {
