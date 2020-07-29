@@ -1,0 +1,10 @@
+server:
+  port: PORT
+spring:
+  datasource:
+    url: URL
+    username: USERNAME
+    password: PASSWORD
+  jpa:
+    hibernate:
+      ddl-auto: update
