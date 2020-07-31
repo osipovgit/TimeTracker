@@ -29,7 +29,11 @@ public class Time_track {
      */
     private Date date;
     /**
-     * Поле заголовка.
+     * Поле потраченного за день времени.
      */
-    private Long time;
+    private Long current_time;
+    /**
+     * Поле времени начала отсчета.
+     */
+    private Long start_time;
 }
