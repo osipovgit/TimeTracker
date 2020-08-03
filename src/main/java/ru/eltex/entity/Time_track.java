@@ -29,9 +29,9 @@ public class Time_track {
     /**
      * Поле даты.
      */
-    private Date date;
+    private Long date;
     /**
-     * Поле потраченного за день времени.
+     * Поле потраченного за день времени (cek).
      */
     private Long current_time;
     /**
