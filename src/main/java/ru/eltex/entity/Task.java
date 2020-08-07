@@ -22,9 +22,10 @@ public class Task {
     /**
      * Поле идентификатора пользователя.
      */
-    private Long user_id;
+    private Long userId;
     /**
      * Поле заголовка.
+     * Unique.
      */
     private String title;
 }

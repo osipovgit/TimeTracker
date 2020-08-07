@@ -14,38 +14,38 @@ import java.util.List;
  */
 public interface TaskRepo extends JpaRepository<Task, Long> {
     /**
-     * Find task by user_id and title.
+     * Find task by userId and title.
      *
-     * @param user_id the user id
-     * @param title   the title of task
+     * @param userId the user id
+     * @param title  the title of task
      * @return Task
      */
-    Task findByUser_idAndTitle(Long user_id, String title);
+    Task findByUserIdAndTitle(Long userId, String title);
 
     /**
-     * Find all tasks by user_id.
+     * Find all tasks by userId.
      *
-     * @param user_id the user id
+     * @param userId the user id
      * @return list tasks
      */
-    List<Task> findAllByUser_id(Long user_id);
+    List<Task> findAllByUserId(Long userId);
 
     /**
-     * Delete by user_id and title.
+     * Delete by userId and title.
      *
-     * @param user_id the user id
+     * @param userId the user id
      * @param title   the title
      */
     @Modifying
     @Transactional
-    void deleteByUser_idAndTitle(@Param("user_id") Long user_id, @Param("title") String title);
+    void deleteByUserIdAndTitle(@Param("userId") Long userId, @Param("title") String title);
 
     /**
-     * Delete all by user_id.
+     * Delete all by userId.
      *
-     * @param user_id the user id
+     * @param userId the user id
      */
     @Modifying
     @Transactional
-    void deleteAllByUser_id(@Param("user_id") Long user_id);
+    void deleteAllByUserId(@Param("userId") Long userId);
 }

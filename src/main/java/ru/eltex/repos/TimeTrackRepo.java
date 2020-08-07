@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
-import ru.eltex.entity.Time_track;
+import ru.eltex.entity.TimeTrack;
 
 import java.util.List;
 
@@ -13,62 +13,62 @@ import java.util.List;
 /**
  * Интерфейс Time Track repository.
  */
-public interface TimeTrackRepo extends JpaRepository<Time_track, Long> {
+public interface TimeTrackRepo extends JpaRepository<TimeTrack, Long> {
     /**
      * Find task by user_id and title.
      *
-     * @param task_id the task id
+     * @param taskId the task id
      * @return List of Time_track
      */
-    List<Time_track> findAllByTask_idOrderByDate(Long task_id);
+    List<TimeTrack> findAllByTaskIdOrderByDate(Long taskId);
 
     /**
-     * Find task by user_id and title.
+     * Find top task by user_id and title order desc.
      *
-     * @param task_id the task id
-     * @return List of Time_track
+     * @param taskId the task id
+     * @return Time_track
      */
-    Time_track findTopByTask_idOrderByDateDesc(Long task_id);
+    TimeTrack findTopByTaskIdOrderByDateDesc(Long taskId);
 
     /**
-     * Find task by task_id and date.
+     * Find task by taskId and date.
      *
-     * @param task_id the task id
-     * @param date    the date
+     * @param taskId the task id
+     * @param date   the date
      * @return Time track entity
      */
-    Time_track findByTask_idAndDate(Long task_id, Long date);
+    TimeTrack findByTaskIdAndDate(Long taskId, Long date);
 
     /**
-     * Delete all by task_id.
+     * Delete all by taskId.
      *
-     * @param task_id the task id
+     * @param taskId the task id
      */
     @Modifying
     @Transactional
-    void deleteAllByTask_id(@Param("task_id") Long task_id);
+    void deleteAllByTaskId(@Param("taskId") Long taskId);
 
     /**
-     * Update current time by task_id and date.
+     * Update current time by taskId and date.
      *
-     * @param task_id      the task id
+     * @param taskId      the task id
      * @param date         the date
-     * @param current_time the current time
+     * @param spentTime the current time
      */
     @Modifying
     @Transactional
-    @Query(nativeQuery = true, value = "update user set 'current_time' = :'current_time' where task_id =:task_id and date =:date")
-    void updateCurrentTime(@Param("task_id") Long task_id, @Param("date") Long date, @Param("current_time") Long current_time);
+    @Query(nativeQuery = true, value = "update time_track set spent_time = :spentTime where task_id =:taskId and date =:date")
+    void updateSpentTime(@Param("taskId") Long taskId, @Param("date") Long date, @Param("spentTime") Long spentTime);
 
     /**
-     * Update start time by task_id and date.
+     * Update start time by taskId and date.
      *
-     * @param task_id    the task id
+     * @param taskId    the task id
      * @param date       the date
-     * @param start_time the start time
+     * @param startTime the start time
      */
     @Modifying
     @Transactional
-    @Query(nativeQuery = true, value = "update user set start_time = :start_time where task_id =:task_id and date =:date")
-    void updateStartTime(@Param("task_id") Long task_id, @Param("date") Long date, @Param("start_time") Long start_time);
+    @Query(nativeQuery = true, value = "update time_track set start_time = :startTime where task_id =:taskId and date =:date")
+    void updateStartTime(@Param("taskId") Long taskId, @Param("date") Long date, @Param("startTime") Long startTime);
 }

@@ -3,7 +3,6 @@ package ru.eltex.entity;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Date;
 
 /**
  * Класс представления времени выполнения задач пользователями.
@@ -15,7 +14,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "time_track")
-public class Time_track {
+public class TimeTrack {
     /**
      * Поле идентификатора времени, потраченного на задачу.
      */
@@ -25,17 +24,20 @@ public class Time_track {
     /**
      * Поле идентификатора задачи.
      */
-    private Long task_id;
+    private Long taskId;
     /**
      * Поле даты.
+     * Хранится в формате: Date().getTime() / 86400000
      */
     private Long date;
     /**
      * Поле потраченного за день времени (cek).
      */
-    private Long current_time;
+    private Long spentTime;
     /**
      * Поле времени начала отсчета.
+     * null - задача приостановлена
+     * Date().getTime() - время начала отсчета
      */
-    private Long start_time;
+    private Long startTime;
 }
