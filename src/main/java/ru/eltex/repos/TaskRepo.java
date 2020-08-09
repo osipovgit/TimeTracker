@@ -23,7 +23,7 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
     Task findByUserIdAndTitle(Long userId, String title);
 
     /**
-     * Find all tasks by userId.
+     * Find all tasks by userId order by id.
      *
      * @param userId the user id
      * @return list tasks

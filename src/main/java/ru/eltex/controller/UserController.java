@@ -62,4 +62,6 @@ public class UserController {
         userRepo.save(user);
         return "/" + user.getUsername() + "/home";
     }
+
+
 }

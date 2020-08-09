@@ -54,6 +54,7 @@ public class TaskController {
         for (Task task : tasks) {
             trackRepo.deleteAllByTaskId(task.getId());
         }
+        taskRepo.deleteAllByUserId(user.getId());
         userRepo.deleteByUsername(user.getUsername());
     }
 
@@ -64,6 +65,7 @@ public class TaskController {
         for (Task task : tasks) {
             trackRepo.deleteAllByTaskId(task.getId());
         }
+        taskRepo.deleteAllByUserId(user.getId());
     }
 
     @GetMapping("/change_status/{title}/{status}")
@@ -129,7 +131,7 @@ public class TaskController {
                 }
             }
             if (time != 0) {
-                if (!json.equals("")) {
+                if (!json.equals("{")) {
                     json += ",";
                 }
                 json += "\"" + task.getTitle() + "\":\"" + time % 3600 + ":" + time % 60 + "\"";
@@ -142,13 +144,30 @@ public class TaskController {
         return json;
     }
 
-    @GetMapping("/show_one/{start}/{stop}")
-    public void showOne(@PathVariable("username") String username,
-                        @PathVariable("start") String start,
-                        @PathVariable("stop") String stop,
-                        HttpServletRequest request, Model model) {
+    @GetMapping("/show_one/{title}/{start}/{stop}")
+    public String showOne(@PathVariable("username") String username,
+                          @PathVariable("title") String title,
+                          @PathVariable("start") Long start,
+                          @PathVariable("stop") Long stop,
+                          HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
+        Task task = taskRepo.findByUserIdAndTitle(user.getId(), title);
+        String json = "{";
+        List<TimeTrack> trackList = trackRepo.findAllByTaskIdOrderByDate(task.getId());
+        for (TimeTrack track : trackList) {
+            if (track.getDate() >= start / 86400000 & track.getDate() <= stop / 86400000) {
+                if (!json.equals("{")) {
+                    json += ",";
+                }
+                json += "\"" + new Date(track.getDate()) + "\":\"" + track.getSpentTime() % 3600 + ":" + track.getSpentTime() % 60 + "\"";
+            }
+        }
 
+        if (json.equals("{")) {
+            json += "\"В данный период не было выполнено ни одной задачи.\":0";
+        }
+        json += "}";
+        return json;
     }
 
     @GetMapping("/show_total/{start}/{stop}")
@@ -205,5 +224,9 @@ public class TaskController {
             taskRepo.deleteByUserIdAndTitle(user.getId(), title);
             return "Задача удалена!";
         }
+    }
+
+    @GetMapping("/home")
+    public void home(@PathVariable("username") String username, HttpServletRequest request, Model model) {
     }
 }

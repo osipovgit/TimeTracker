@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface TimeTrackRepo extends JpaRepository<TimeTrack, Long> {
     /**
-     * Find task by user_id and title.
+     * Find task by user_id and title order by date.
      *
      * @param taskId the task id
      * @return List of Time_track
