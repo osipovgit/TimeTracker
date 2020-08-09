@@ -66,4 +66,55 @@ public class UserController {
         userRepo.save(user);
         return "/" + user.getUsername() + "/home";
     }
+
+    /**
+     * Метод для изменения имени пользователя.
+     *
+     * @param username   username
+     * @param first_name first name
+     * @param request    request
+     * @param model      to view page
+     */
+    @GetMapping("/{username}/update_first_name/{first_name}")
+    public void updateFirstName(@PathVariable("username") String username,
+                                @PathVariable("first_name") String first_name,
+                                HttpServletRequest request, Model model) {
+        User user = userRepo.findByUsername(username);
+        userRepo.updateFirstName(user.getUsername(), first_name);
+        log.info("User " + user.getUsername() + " change first name to: " + first_name);
+    }
+
+    /**
+     * Метод для изменения фамилии пользователя.
+     *
+     * @param username  username
+     * @param last_name last name
+     * @param request   request
+     * @param model     to view page
+     */
+    @GetMapping("/{username}/update_last_name/{last_name}")
+    public void updateLastName(@PathVariable("username") String username,
+                               @PathVariable("last_name") String last_name,
+                               HttpServletRequest request, Model model) {
+        User user = userRepo.findByUsername(username);
+        userRepo.updateLastName(user.getUsername(), last_name);
+        log.info("User " + user.getUsername() + " change last name to: " + last_name);
+    }
+
+    /**
+     * Метод для изменения пароля пользователя.
+     *
+     * @param username username
+     * @param password password
+     * @param request  request
+     * @param model    to view page
+     */
+    @GetMapping("/{username}/update_password/{password}")
+    public void updatePassword(@PathVariable("username") String username,
+                               @PathVariable("password") String password,
+                               HttpServletRequest request, Model model) {
+        User user = userRepo.findByUsername(username);
+        userRepo.updatePassword(user.getUsername(), password);
+        log.info("User " + user.getUsername() + " change password");
+    }
 }

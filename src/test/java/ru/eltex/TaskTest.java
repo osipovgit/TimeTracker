@@ -233,13 +233,70 @@ class TaskTest {
     }
 
     /**
+     * Тестирование TaskController.changeStatus.
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    public void changeStatusTest() throws Exception {
+        // Создание temp-user, temp-task
+        User user = new User(null, "testUsername", "psswd", "testFname", "testLname");
+        userRepo.save(user);
+        user = userRepo.findByUsername(user.getUsername());
+        Task task = new Task(null, user.getId(), "Im a teapot");
+        taskRepo.save(task);
+        task = taskRepo.findByUserIdAndTitle(user.getId(), task.getTitle());
+
+        // Проверка запуска таймера
+        assertNull(trackRepo.findByTaskIdAndDate(task.getId(), new Date().getTime() / 86400000));
+        this.mockMvc.perform(get("/" + user.getUsername() + "/change_status/" + task.getTitle() + "/start")).andDo(print()).andExpect(status().isOk());
+        assertEquals(task.getId(), trackRepo.findByTaskIdAndDate(task.getId(), new Date().getTime() / 86400000).getTaskId());
+
+        // Проверка остановки таймера
+        this.mockMvc.perform(get("/" + user.getUsername() + "/change_status/" + task.getTitle() + "/stop")).andDo(print()).andExpect(status().isOk());
+        assertNull(trackRepo.findByTaskIdAndDate(task.getId(), new Date().getTime() / 86400000).getStartTime());
+
+        // Удаление temp-user, temp-task, temp-track
+        trackRepo.deleteAllByTaskId(task.getId());
+        taskRepo.deleteAllByUserId(user.getId());
+        userRepo.deleteByUsername(user.getUsername());
+        assertNull(userRepo.findByUsername(user.getUsername()));
+    }
+
+    /**
      * Тестирование TaskController.showOne.
      *
      * @throws Exception Exception
      */
     @Test
     public void showOneTest() throws Exception {
+        // Создание temp-user, temp-task, temp-timeTracks
+        User user = new User(null, "testUsername", "psswd", "testFname", "testLname");
+        userRepo.save(user);
+        user = userRepo.findByUsername(user.getUsername());
+        Task task = new Task(null, user.getId(), "I'm a teapot.");
+        taskRepo.save(task);
+        task = taskRepo.findByUserIdAndTitle(user.getId(), task.getTitle());
+        TimeTrack timeTrack = new TimeTrack(null, task.getId(), new Date().getTime() / 86400000 - 1, 54660L, null);
+        TimeTrack timeTrack1 = new TimeTrack(null, task.getId(), new Date().getTime() / 86400000, 36360L, null);
+        trackRepo.save(timeTrack);
+        trackRepo.save(timeTrack1);
 
+        // Проверка json | успешный запрос
+        RequestBuilder request = MockMvcRequestBuilders.get("/" + user.getUsername() + "/show_one/" + task.getTitle() + "/" + (new Date().getTime() - 3 * 86400000) + "/" + (new Date().getTime()));
+        MvcResult result = mockMvc.perform(request).andDo(print()).andReturn();
+        assertEquals("{\"" + new Date((new Date().getTime() / 86400000 - 1) * 86400000) + "\":\"15:11\",\"" + new Date((new Date().getTime() / 86400000) * 86400000) + "\":\"10:6\"}", result.getResponse().getContentAsString());
+
+        // Проверка json | не выполнялась ни одна задача
+        RequestBuilder request1 = MockMvcRequestBuilders.get("/" + user.getUsername() + "/show_one/" + task.getTitle() + "/" + (new Date().getTime() - 5 * 86400000) + "/" + (new Date().getTime() - 3 * 86400000));
+        MvcResult result1 = mockMvc.perform(request1).andDo(print()).andReturn();
+        assertEquals("{\"В данный период не было выполнено ни одной задачи.\":0}", result1.getResponse().getContentAsString());
+
+        // Удаление temp-user, temp-task, temp-track
+        trackRepo.deleteAllByTaskId(task.getId());
+        taskRepo.deleteAllByUserId(user.getId());
+        userRepo.deleteByUsername(user.getUsername());
+        assertNull(userRepo.findByUsername(user.getUsername()));
     }
 
     /**
@@ -249,7 +306,33 @@ class TaskTest {
      */
     @Test
     public void showAllTest() throws Exception {
+        // Создание temp-user, temp-task, temp-timeTracks
+        User user = new User(null, "testUsername", "psswd", "testFname", "testLname");
+        userRepo.save(user);
+        user = userRepo.findByUsername(user.getUsername());
+        Task task = new Task(null, user.getId(), "I'm a teapot.");
+        taskRepo.save(task);
+        task = taskRepo.findByUserIdAndTitle(user.getId(), task.getTitle());
+        TimeTrack timeTrack = new TimeTrack(null, task.getId(), new Date().getTime() / 86400000 - 1, 54660L, null);
+        TimeTrack timeTrack1 = new TimeTrack(null, task.getId(), new Date().getTime() / 86400000, 36360L, null);
+        trackRepo.save(timeTrack);
+        trackRepo.save(timeTrack1);
 
+        // Проверка json | успешный запрос
+        RequestBuilder request = MockMvcRequestBuilders.get("/" + user.getUsername() + "/show_all/" + (new Date().getTime() - 3 * 86400000) + "/" + (new Date().getTime()));
+        MvcResult result = mockMvc.perform(request).andDo(print()).andReturn();
+        assertEquals("{\"" + task.getTitle() + "\":\"25:17\"}", result.getResponse().getContentAsString());
+
+        // Проверка json | не выполнялась ни одна задача
+        RequestBuilder request1 = MockMvcRequestBuilders.get("/" + user.getUsername() + "/show_all/" + (new Date().getTime() - 5 * 86400000) + "/" + (new Date().getTime() - 3 * 86400000));
+        MvcResult result1 = mockMvc.perform(request1).andDo(print()).andReturn();
+        assertEquals("{\"В данный период не было выполнено ни одной задачи.\":0}", result1.getResponse().getContentAsString());
+
+        // Удаление temp-user, temp-task, temp-track
+        trackRepo.deleteAllByTaskId(task.getId());
+        taskRepo.deleteAllByUserId(user.getId());
+        userRepo.deleteByUsername(user.getUsername());
+        assertNull(userRepo.findByUsername(user.getUsername()));
     }
 
     /**
@@ -259,6 +342,34 @@ class TaskTest {
      */
     @Test
     public void showTotalTest() throws Exception {
+        // Создание temp-user, temp-task, temp-timeTracks
+        User user = new User(null, "testUsername", "psswd", "testFname", "testLname");
+        userRepo.save(user);
+        user = userRepo.findByUsername(user.getUsername());
+        Task task = new Task(null, user.getId(), "I'm a teapot.");
+        Task task1 = new Task(null, user.getId(), "I'm a 418.");
+        taskRepo.save(task);
+        taskRepo.save(task1);
+        task = taskRepo.findByUserIdAndTitle(user.getId(), task.getTitle());
+        TimeTrack timeTrack = new TimeTrack(null, task.getId(), new Date().getTime() / 86400000 - 1, 54660L, null);
+        TimeTrack timeTrack1 = new TimeTrack(null, task1.getId(), new Date().getTime() / 86400000, 36360L, null);
+        trackRepo.save(timeTrack);
+        trackRepo.save(timeTrack1);
 
+        // Проверка json | успешный запрос
+        RequestBuilder request = MockMvcRequestBuilders.get("/" + user.getUsername() + "/show_total/" + (new Date().getTime() - 3 * 86400000) + "/" + (new Date().getTime()));
+        MvcResult result = mockMvc.perform(request).andDo(print()).andReturn();
+        assertEquals("{\"total_time\":\"25:17\"}", result.getResponse().getContentAsString());
+
+        // Проверка json | не выполнялась ни одна задача
+        RequestBuilder request1 = MockMvcRequestBuilders.get("/" + user.getUsername() + "/show_total/" + (new Date().getTime() - 5 * 86400000) + "/" + (new Date().getTime() - 3 * 86400000));
+        MvcResult result1 = mockMvc.perform(request1).andDo(print()).andReturn();
+        assertEquals("{\"В данный период не было выполнено ни одной задачи.\":0}", result1.getResponse().getContentAsString());
+
+        // Удаление temp-user, temp-task, temp-track
+        trackRepo.deleteAllByTaskId(task.getId());
+        taskRepo.deleteAllByUserId(user.getId());
+        userRepo.deleteByUsername(user.getUsername());
+        assertNull(userRepo.findByUsername(user.getUsername()));
     }
 }

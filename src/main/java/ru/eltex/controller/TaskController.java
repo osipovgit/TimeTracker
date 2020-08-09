@@ -180,7 +180,7 @@ public class TaskController {
                 if (!json.equals("{")) {
                     json += ",";
                 }
-                json += "\"" + task.getTitle() + "\":\"" + time % 3600 + ":" + time % 60 + "\"";
+                json += "\"" + task.getTitle() + "\":\"" + time / 3600 + ":" + (time % 3600) / 60 + "\"";
             }
         }
         if (json.equals("{")) {
@@ -217,7 +217,7 @@ public class TaskController {
                 if (!json.equals("{")) {
                     json += ",";
                 }
-                json += "\"" + new Date(track.getDate()) + "\":\"" + track.getSpentTime() % 3600 + ":" + track.getSpentTime() % 60 + "\"";
+                json += "\"" + new Date(track.getDate() * 86400000) + "\":\"" + track.getSpentTime() / 3600L + ":" + (track.getSpentTime() % 3600L) / 60 + "\"";
             }
         }
 
@@ -259,7 +259,7 @@ public class TaskController {
         if (time == 0) {
             json += "{\"В данный период не было выполнено ни одной задачи.\":0}";
         } else {
-            json += "{\"total_time\":\"" + time % 3600 + ":" + time % 60 + "\"}";
+            json += "{\"total_time\":\"" + time / 3600 + ":" + (time % 3600) / 60 + "\"}";
         }
         log.info("User " + username + " check total of tasks.");
         return json;
