@@ -25,21 +25,40 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Класс для тестирования объекта задачи, ее репозитория и контроллераю.
+ *
+ * @author Evgeny Osipov
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class TaskTest {
+    /**
+     * Поле подключения репозитория для взамимодействия задач с БД.
+     */
     @Autowired
     private TaskRepo taskRepo;
-
+    /**
+     * Поле подключения репозитория для взамимодействия пользвателя с БД.
+     */
     @Autowired
     private UserRepo userRepo;
-
+    /**
+     * Поле подключения репозитория для взамимодействия таймеров с БД.
+     */
     @Autowired
     private TimeTrackRepo trackRepo;
-
+    /**
+     * Main entry point for server-side Spring MVC test support.
+     */
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * Тестирование репозирория и его методов.
+     *
+     * @throws Exception Exception
+     */
     @Test
     public void testTaskRepository() {
         // Создание temp-user, temp-task
@@ -75,6 +94,11 @@ class TaskTest {
         assertNull(userRepo.findByUsername(user.getUsername()));
     }
 
+    /**
+     * Тестирование TaskController.deleteUser.
+     *
+     * @throws Exception Exception
+     */
     @Test
     public void deleteUserTest() throws Exception {
         // Создание temp-user, temp-task, temp-timeTrack
@@ -106,6 +130,11 @@ class TaskTest {
         assertNull(trackRepo.findByTaskIdAndDate(task1.getId(), timeTrack3.getDate()));
     }
 
+    /**
+     * Тестирование TaskController.clearTrack.
+     *
+     * @throws Exception Exception
+     */
     @Test
     public void clearTrackTest() throws Exception {
         // Создание temp-user, temp-task, temp-timeTrack
@@ -127,7 +156,7 @@ class TaskTest {
         // Проверка статуса запроса и его выполнение
         this.mockMvc.perform(get("/" + user.getUsername() + "/clear_track")).andDo(print()).andExpect(status().isOk());
 
-        // Проверка выполнения запроса [пользователь сохраняется]
+        // Проверка исполнения метода [пользователь сохраняется]
         assertEquals(user.getPassword(), userRepo.findByUsername(user.getUsername()).getPassword());
         assertNull(taskRepo.findByUserIdAndTitle(user.getId(), task.getTitle()));
         assertNull(taskRepo.findByUserIdAndTitle(user.getId(), task1.getTitle()));
@@ -141,6 +170,11 @@ class TaskTest {
         assertNull(userRepo.findByUsername(user.getUsername()));
     }
 
+    /**
+     * Тестирование TaskController.addTask и TaskController.deleteTask.
+     *
+     * @throws Exception Exception
+     */
     @Test
     public void addAndDeleteTaskTest() throws Exception {
         // Создание temp-user, temp-task
@@ -196,5 +230,35 @@ class TaskTest {
         // Удаление temp-user
         userRepo.deleteByUsername(user.getUsername());
         assertNull(userRepo.findByUsername(user.getUsername()));
+    }
+
+    /**
+     * Тестирование TaskController.showOne.
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    public void showOneTest() throws Exception {
+
+    }
+
+    /**
+     * Тестирование TaskController.showAll.
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    public void showAllTest() throws Exception {
+
+    }
+
+    /**
+     * Тестирование TaskController.showTotal.
+     *
+     * @throws Exception Exception
+     */
+    @Test
+    public void showTotalTest() throws Exception {
+
     }
 }

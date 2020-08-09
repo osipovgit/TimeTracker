@@ -43,9 +43,13 @@ public class UserController {
      * - если нет: добавляет пользователя в БД и переходит на главную страницу [{username}/home];
      * - если да:  возвращает на страницу регистрации [signup].
      *
-     * @param user  it receives data from forms
-     * @param model to view page
-     * @return view /signup or redirect:/{username}/home
+     * @param username   username
+     * @param password   password
+     * @param first_name first_name
+     * @param last_name  last_name
+     * @param request    request
+     * @param model      to view page
+     * @return view redirect:/signup or /{username}/home
      */
     @GetMapping("/signup/{username}/{password}/{first_name}/{last_name}")
     public String signUpNewUser(@PathVariable("username") String username,
@@ -62,6 +66,4 @@ public class UserController {
         userRepo.save(user);
         return "/" + user.getUsername() + "/home";
     }
-
-
 }

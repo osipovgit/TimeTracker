@@ -15,16 +15,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+/**
+ * Класс для тестирования объекта пользователя, его репозитория и контроллера.
+ *
+ * @author Evgeny Osipov
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class UserTest {
-
+    /**
+     * Поле подключения репозитория для взамимодействия пользвателя с БД.
+     */
     @Autowired
     private UserRepo userRepo;
-
+    /**
+     * Main entry point for server-side Spring MVC test support.
+     */
     @Autowired
     private MockMvc mockMvc;
 
+    /**
+     * Тестирование регистрации пользователя.
+     * Тут возникла ошибка, которую я так и не смог исправить:
+     * Request processing failed; nested exception is org.thymeleaf.exceptions.
+     * TemplateInputException: Error resolving template [/testUsername/home],
+     * template might not exist or might not be accessible by any of the configured Template Resolvers
+     *
+     * @throws Exception Exception
+     */
     @Test
     public void registration() throws Exception {
 //         Создание temp-user, temp-task
@@ -45,13 +63,13 @@ class UserTest {
 //        userRepo.deleteByUsername(user.getUsername());
 //        assertNull(userRepo.findByUsername(user.getUsername()));
 
-        /*
-        Request processing failed; nested exception is org.thymeleaf.exceptions.
-        TemplateInputException: Error resolving template [/testUsername/home],
-        template might not exist or might not be accessible by any of the configured Template Resolvers
-         */
     }
 
+    /**
+     * Тестирование репозирория и его методов.
+     *
+     * @throws Exception Exception
+     */
     @Test
     void testUserRepository() throws Exception {
         // Создание temp-user

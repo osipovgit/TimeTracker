@@ -15,12 +15,15 @@ import ru.eltex.repos.TimeTrackRepo;
 import ru.eltex.repos.UserRepo;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 
 /**
- * Класс - REST контроллер. Основной класс, который отвечает за                 НАПИСАТЬ ЗА ЧТО.
+ * Класс - REST контроллер. Основной класс, который отвечает за создание и удаление задач,
+ * начало и окончание работы с конкретной задачей, а так же за просмотр потраченного на них времени.
  * Обращение к методам происходит через ajax-запросы.
+ * В данной задаче имя пользователя передается в запросе.
  *
  * @author Evgeny Osipov
  */
@@ -47,6 +50,13 @@ public class TaskController {
     @Autowired
     private TimeTrackRepo trackRepo;
 
+    /**
+     * Метод для удаления пользователя и всей информации о нем.
+     *
+     * @param username the username
+     * @param request  the request
+     * @param model    the model
+     */
     @GetMapping("/delete_user")
     public void deleteUser(@PathVariable("username") String username, HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
@@ -56,8 +66,16 @@ public class TaskController {
         }
         taskRepo.deleteAllByUserId(user.getId());
         userRepo.deleteByUsername(user.getUsername());
+        log.info("User " + username + " has been deleted.");
     }
 
+    /**
+     * Метод для очистки всех задач пользователя, а так же их временных промежутков.
+     *
+     * @param username the username
+     * @param request  the request
+     * @param model    the model
+     */
     @GetMapping("/clear_track")
     public void clearTrack(@PathVariable("username") String username, HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
@@ -66,8 +84,19 @@ public class TaskController {
             trackRepo.deleteAllByTaskId(task.getId());
         }
         taskRepo.deleteAllByUserId(user.getId());
+        log.info("User " + username + " deleted all tasks.");
     }
 
+    /**
+     * Метод начинает или заканчивает отсчет времени в определенной задаче.
+     * Подсчитывает затраченное время и записявает его в поле spentTime, в таблицу time_track
+     *
+     * @param username the username
+     * @param title    title of task
+     * @param status   start or stop timer
+     * @param request  the request
+     * @param model    the model
+     */
     @GetMapping("/change_status/{title}/{status}")
     public void changeStatus(@PathVariable("username") String username,
                              @PathVariable("title") String title,
@@ -75,7 +104,7 @@ public class TaskController {
                              HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
         Task task = taskRepo.findByUserIdAndTitle(user.getId(), title);
-        if (status.equals("Start")) {
+        if (status.equals("start")) {
             if (trackRepo.findByTaskIdAndDate(task.getId(), new Date().getTime() / 86400000) == null) {
                 TimeTrack track = new TimeTrack();
                 track.setDate(new Date().getTime() / 86400000);
@@ -83,10 +112,12 @@ public class TaskController {
                 track.setSpentTime(0L);
                 track.setStartTime(new Date().getTime());
                 trackRepo.save(track);
+                log.info("User " + username + " started task: \"" + title + "\"");
             } else {
                 trackRepo.updateStartTime(task.getId(), new Date().getTime() / 86400000, new Date().getTime());
+                log.info("User " + username + " started task: \"" + title + "\"");
             }
-        } else if (status.equals("Stop")) {
+        } else if (status.equals("stop")) {
             TimeTrack track = trackRepo.findByTaskIdAndDate(task.getId(), new Date().getTime() / 86400000);
             if (track == null) {
                 TimeTrack top = trackRepo.findTopByTaskIdOrderByDateDesc(task.getId());
@@ -105,15 +136,30 @@ public class TaskController {
                 }
                 trackRepo.updateSpentTime(task.getId(), new Date().getTime() / 86400000, currentTime);
                 trackRepo.updateStartTime(task.getId(), new Date().getTime() / 86400000, null);
+                log.info("User " + username + " stopped task: \"" + title + "\"");
 
             } else {
                 trackRepo.updateSpentTime(task.getId(), new Date().getTime() / 86400000,
                         (track.getSpentTime() + (new Date().getTime() - track.getStartTime())) / 1000);
                 trackRepo.updateStartTime(task.getId(), new Date().getTime() / 86400000, null);
+                log.info("User " + username + " stopped task: \"" + title + "\"");
             }
         }
     }
 
+    /**
+     * Метод показывает все трудозатраты пользователя Y за период N..M
+     * в виде связного списка Задача - Сумма затраченного времени в виде (чч:мм),
+     * сортировка по времени поступления в трекер.
+     * Для ответа на вопрос, на какие задачи я потратил больше времени.
+     *
+     * @param username username
+     * @param start    start time
+     * @param stop     stop time
+     * @param request  request
+     * @param model    the model
+     * @return json {title : total_time}
+     */
     @GetMapping("/show_all/{start}/{stop}")
     public String showAll(@PathVariable("username") String username,
                           @PathVariable("start") Long start,
@@ -141,9 +187,21 @@ public class TaskController {
             json += "\"В данный период не было выполнено ни одной задачи.\":0";
         }
         json += "}";
+        log.info("User " + username + " check all tasks.");
         return json;
     }
 
+    /**
+     * Метод показывает все временные интервалы занятые работой за период N..M по конкретной задаче.
+     *
+     * @param username username
+     * @param title    title of task
+     * @param start    start time
+     * @param stop     stop time
+     * @param request  request
+     * @param model    the model
+     * @return json {date : current_time}
+     */
     @GetMapping("/show_one/{title}/{start}/{stop}")
     public String showOne(@PathVariable("username") String username,
                           @PathVariable("title") String title,
@@ -167,9 +225,20 @@ public class TaskController {
             json += "\"В данный период не было выполнено ни одной задачи.\":0";
         }
         json += "}";
+        log.info("User " + username + " check one tasks.");
         return json;
     }
 
+    /**
+     * Метод показывает сумму трудозатрат по всем задачам пользователя Y за период N..M.
+     *
+     * @param username username
+     * @param start    start time
+     * @param stop     stop time
+     * @param request  request
+     * @param model    the model
+     * @return json {"total_time" : total_time}
+     */
     @GetMapping("/show_total/{start}/{stop}")
     public String showTotal(@PathVariable("username") String username,
                             @PathVariable("start") Long start,
@@ -190,11 +259,22 @@ public class TaskController {
         if (time == 0) {
             json += "{\"В данный период не было выполнено ни одной задачи.\":0}";
         } else {
-            json += "{\"В данный период Вы уделили на задачи:\":\"" + time % 3600 + ":" + time % 60 + "\"}";
+            json += "{\"total_time\":\"" + time % 3600 + ":" + time % 60 + "\"}";
         }
+        log.info("User " + username + " check total of tasks.");
         return json;
     }
 
+    /**
+     * Метод для добавления задачи пользователем.
+     * Для удобства пользователя задача должна иметь уникальное название.
+     *
+     * @param username username
+     * @param title    title of task
+     * @param request  request
+     * @param model    the model
+     * @return String [done / try again]
+     */
     @GetMapping("/add_task/{title}")
     public String addTask(@PathVariable("username") String username,
                           @PathVariable("title") String title,
@@ -205,12 +285,22 @@ public class TaskController {
             task.setTitle(title);
             task.setUserId(user.getId());
             taskRepo.save(task);
+            log.info("User " + username + " create task: \"" + title + "\"");
             return "Задача добавлена!";
         } else {
             return "Задача с таким названием уже существует. Попробуйте изменить название, чтобы не запутаться :)";
         }
     }
 
+    /**
+     * Метод для удаления задачи. Так же удаляет данные трекинга этой задачи.
+     *
+     * @param username username
+     * @param title    title of task
+     * @param request  request
+     * @param model    the model
+     * @return
+     */
     @GetMapping("/delete_task/{title}")
     public String deleteTask(@PathVariable("username") String username,
                              @PathVariable("title") String title,
@@ -222,11 +312,18 @@ public class TaskController {
             Task task = taskRepo.findByUserIdAndTitle(user.getId(), title);
             trackRepo.deleteAllByTaskId(task.getId());
             taskRepo.deleteByUserIdAndTitle(user.getId(), title);
+            log.info("User " + username + " delete task: \"" + title + "\"");
             return "Задача удалена!";
         }
     }
 
+    /**
+     * Не обращайте внимания, это была попытка починить тест регистрации пользователя...
+     *
+     * @param username username
+     * @param response response
+     */
     @GetMapping("/home")
-    public void home(@PathVariable("username") String username, HttpServletRequest request, Model model) {
+    public void home(@PathVariable("username") String username, HttpServletResponse response) {
     }
 }
