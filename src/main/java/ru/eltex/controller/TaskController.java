@@ -50,7 +50,7 @@ public class TaskController {
     @GetMapping("/delete_user")
     public void deleteUser(@PathVariable("username") String username, HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
-        List<Task> tasks = taskRepo.findAllByUserId(user.getId());
+        List<Task> tasks = taskRepo.findAllByUserIdOrderById(user.getId());
         for (Task task : tasks) {
             trackRepo.deleteAllByTaskId(task.getId());
         }
@@ -60,7 +60,7 @@ public class TaskController {
     @GetMapping("/clear_track")
     public void clearTrack(@PathVariable("username") String username, HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
-        List<Task> tasks = taskRepo.findAllByUserId(user.getId());
+        List<Task> tasks = taskRepo.findAllByUserIdOrderById(user.getId());
         for (Task task : tasks) {
             trackRepo.deleteAllByTaskId(task.getId());
         }
@@ -118,7 +118,7 @@ public class TaskController {
                           @PathVariable("stop") Long stop,
                           HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
-        List<Task> taskList = taskRepo.findAllByUserId(user.getId());
+        List<Task> taskList = taskRepo.findAllByUserIdOrderById(user.getId());
         String json = "{";
         for (Task task : taskList) {
             List<TimeTrack> tracks = trackRepo.findAllByTaskIdOrderByDate(task.getId());
@@ -157,7 +157,7 @@ public class TaskController {
                             @PathVariable("stop") Long stop,
                             HttpServletRequest request, Model model) {
         User user = userRepo.findByUsername(username);
-        List<Task> taskList = taskRepo.findAllByUserId(user.getId());
+        List<Task> taskList = taskRepo.findAllByUserIdOrderById(user.getId());
         Long time = 0L;
         for (Task task : taskList) {
             List<TimeTrack> tracks = trackRepo.findAllByTaskIdOrderByDate(task.getId());

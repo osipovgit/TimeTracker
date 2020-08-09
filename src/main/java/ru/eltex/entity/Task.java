@@ -1,6 +1,8 @@
 package ru.eltex.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -12,6 +14,8 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "task")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Task {
     /**
      * Поле идентификатора задачи.

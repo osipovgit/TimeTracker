@@ -1,6 +1,8 @@
 package ru.eltex.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -14,6 +16,8 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "time_track")
+@AllArgsConstructor
+@NoArgsConstructor
 public class TimeTrack {
     /**
      * Поле идентификатора времени, потраченного на задачу.

@@ -4,11 +4,14 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.eltex.entity.User;
 import ru.eltex.repos.TaskRepo;
 import ru.eltex.repos.TimeTrackRepo;
 import ru.eltex.repos.UserRepo;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Класс-контроллер для управления пользователем.
@@ -44,14 +47,19 @@ public class UserController {
      * @param model to view page
      * @return view /signup or redirect:/{username}/home
      */
-    @PostMapping("/signup")
-    public String signUpNewUser(User user, Model model) {
+    @GetMapping("/signup/{username}/{password}/{first_name}/{last_name}")
+    public String signUpNewUser(@PathVariable("username") String username,
+                                @PathVariable("password") String password,
+                                @PathVariable("first_name") String first_name,
+                                @PathVariable("last_name") String last_name,
+                                HttpServletRequest request, Model model) {
+        User user = new User(null, username, password, first_name, last_name);
         User userFromDb = userRepo.findByUsername(user.getUsername());
-        if (userFromDb != null) {
+        if (userFromDb != null | username == null | password == null | first_name == null | last_name == null) {
             return "redirect:/signup";
         }
         log.info("User " + user.getUsername() + " is registered.");
         userRepo.save(user);
-        return "redirect:/{" + user.getUsername() + "}/home";
+        return "/" + user.getUsername() + "/home";
     }
 }

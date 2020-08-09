@@ -8,9 +8,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ApplicationTest {
-    @Test
-    void equals() {
-        assertEquals(42, 42);
-    }
+class TimeTrackTest {
+
 }
